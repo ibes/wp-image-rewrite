@@ -15,7 +15,11 @@ require_once( '../wp-load.php' );
 
 function get_all_entries() {
   global $wpdb;
-  $sql = "SELECT post_content FROM asf2posts WHERE `post_type` = 'post' OR `post_type` = 'page' OR `post_type` = 'revision'";
+  $sql = "SELECT id, post_content FROM asf2posts WHERE " .
+  " (`post_type` = 'post' OR `post_type` = 'page' OR `post_type` = 'revision') " .
+  //"AND `id` = '13185'" .
+ // "LIMIT 100" .
+  "";
   $entries = $wpdb->get_results( $sql);
   return $entries;
 }
@@ -32,6 +36,7 @@ foreach($entries as $entry) {
   // $i++;
 
     // Create DOM from URL or file
+  $entry_original = $entry->post_content;
   $html = str_get_html($entry->post_content);
 
   if ($html) {
@@ -40,19 +45,47 @@ foreach($entries as $entry) {
     $image_count = trim($image_count);
 
     if ($image_count > 0) {
+      // each image
       foreach($html->find('img') as $element) {
-        if (isset ($element->title) ) {
-          // echo $element . "\n\r";
-          echo $element->title . "\n\r";
-          echo ( strpos($element->title, "©") !== false) ? "Copyright" : "eigen";
-          echo "\n\r"  . "\n\r" ;
+        if (isset ($element->title) && (strpos($element->title, "©") !== false) ) {
+          //echo $element . "\n\r";
+          //echo $element->title . "\n\r";
+          //echo ( strpos($element->title, "©") !== false) ? "Copyright" : "eigen";
+          //echo "\n\r"  . "\n\r" ;
+
+$caption = '[caption align="alignleft" width="' . $element->width . '" style="' . $element->style . '"]<img class="'. $element->class .'"  src="' . $element->src . '" alt="' . $element->alt . '" width="' . $element->width . '" height="' . $element->height . '" />' . $element->title . '[/caption]';
+
+
+$entry_rewrite = str_replace($element->outertext, $caption, $entry_original);
+
+echo "works";
+
+  global $wpdb;
+  $update = $wpdb->update(
+    'asf2posts',
+    array(
+      'post_content' => $entry_rewrite
+    ),
+    array(
+      'ID' => $entry->id
+    )
+  );
+  print_r($update);
+
+  $sql = "SELECT post_content FROM asf2posts WHERE `id` = $entry->id";
+  $result = $wpdb->get_row( $sql);
+  echo $result->post_content;
+
+
+
+
         }
-
-
-      }
+      } // - each image END
     }
   }
-}
+
+
+} // - entry END
 
 
 
