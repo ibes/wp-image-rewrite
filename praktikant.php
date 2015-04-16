@@ -1,5 +1,4 @@
 <?php
-
 // load dom library
 include('simple_html_dom.php');
 
@@ -14,10 +13,9 @@ global $wpdb;
 $sql = "SELECT id, post_content FROM asf2posts WHERE " .
 " (`post_type` = 'post' OR `post_type` = 'page' OR `post_type` = 'revision') " .
 //"AND `id` = '28132'" .
-"LIMIT 100" .
+//"LIMIT 100" .
 "";
 $entries = $wpdb->get_results( $sql);
-
 
 foreach($entries as $entry) {
 
@@ -52,14 +50,17 @@ foreach($entries as $entry) {
         $class_rewrite = str_replace("alignnone", "", $class_rewrite);
         $class_rewrite = trim($class_rewrite);
 
+        // show style only if set
+        $element_style = '';
+        if( isset( $element->style ) ) { $element_style = ' style="'. $element->style .'"'; }
+
         // recreate caption
-        $caption = '[caption align="alignleft" width="' . $element->width . '" style="' . $element->style . '"]' .
-          '<img class="'. $class_rewrite .'"  src="' . $element->src . '" alt="' . $element->alt . '" width="' . $element->width . '" height="' . $element->height . '" />' .
+        $caption = '[caption align="alignleft" width="' . $element->width .'"' . $element_style . ']' .
+          '<img class="'. $class_rewrite .'" src="' . $element->src . '" alt="' . $element->alt . '" width="' . $element->width . '" height="' . $element->height . '" />' .
             $element->title . '[/caption]';
 
         // replace image notation with new notation
         $entry_rewrite = str_replace($element->outertext, $caption, $entry_rewrite);
-
 
         // connect to database
         global $wpdb;
@@ -69,17 +70,8 @@ foreach($entries as $entry) {
           array( 'post_content' => $entry_rewrite ),
           array( 'ID' => $entry->id)
         );
-        //print_r($update);
 
       }
     } // - each image END
-
-    // see if it worked
-    $sql = "SELECT post_content FROM asf2posts WHERE `id` = $entry->id";
-    $result = $wpdb->get_row( $sql);
-    echo $result->post_content;
-    echo "\n\r" . "\n\r";
-    echo " ++++++++ ";
-    echo "\n\r" . "\n\r";
   }
 } // - entry END
