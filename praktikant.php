@@ -12,7 +12,7 @@ require_once( '../wp-load.php' );
 global $wpdb;
 $sql = "SELECT id, post_content FROM asf2posts WHERE " .
 " (`post_type` = 'post' OR `post_type` = 'page' OR `post_type` = 'revision') " .
-//"AND `id` = '28132'" .
+//"AND `id` = '2'" .
 //"LIMIT 100" .
 "";
 $entries = $wpdb->get_results( $sql);
@@ -50,12 +50,14 @@ foreach($entries as $entry) {
         $class_rewrite = str_replace("alignnone", "", $class_rewrite);
         $class_rewrite = trim($class_rewrite);
 
-        // show style only if set
-        $element_style = '';
-        if( isset( $element->style ) ) { $element_style = ' style="'. $element->style .'"'; }
+        $caption_class = "";
+        if (isset ($element->class) &&
+          ( (strpos($element->class, "size-full") !== false) || (strpos($element->class, "size-large") !== false) ) )  {
+          $caption_class = ' class="caption-size-full" ';
+        }
 
         // recreate caption
-        $caption = '[caption align="alignleft" width="' . $element->width .'"' . $element_style . ']' .
+        $caption = '[caption align="alignleft" width="' . $element->width .'"' . $caption_class . ']' .
           '<img class="'. $class_rewrite .'" src="' . $element->src . '" alt="' . $element->alt . '" width="' . $element->width . '" height="' . $element->height . '" />' .
             $element->title . '[/caption]';
 
