@@ -9,8 +9,10 @@ ini_set("display_errors", 1);
 define( 'SHORTINIT', true );
 require_once( '../wp-load.php' );
 
+echo "<h1>Praktikant</h1>";
+
 global $wpdb;
-$sql = "SELECT id, post_content FROM asf2posts WHERE " .
+$sql = "SELECT id, post_content FROM " . $wpdb->prefix . "posts WHERE " .
 " (`post_type` = 'post' OR `post_type` = 'page' OR `post_type` = 'revision') " .
 //"AND `id` = '2'" .
 //"LIMIT 100" .
@@ -68,7 +70,7 @@ foreach($entries as $entry) {
         global $wpdb;
         // update this entity
         $update = $wpdb->update(
-          'asf2posts',
+          $wpdb->prefix . 'posts',
           array( 'post_content' => $entry_rewrite ),
           array( 'ID' => $entry->id)
         );
